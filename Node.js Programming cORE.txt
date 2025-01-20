@@ -1,0 +1,94 @@
+Node.js Programming area
+
+1.Node REPL
+2.Node and js apis
+3.Node core apis
+4.Styles of writing async programming
+   ->Callback pattern
+   ->Promise Pattern
+   ->Promise with Async and await Pattern
+
+
+Setup node.js:
+...............
+https://nodejs.org/en
+
+
+1.Node REPL - Read Evaluate Print loop
+
+Node REPL is used to run js programs interactive mode.
+
+Js programs are executed in two modes
+
+1.interactive mode - REPL mode
+2.script mode - by loading script on to the runtime
+
+REPL:
+
+> let a =10
+undefined
+> a
+10
+> a *10
+100
+> name="Subramanian"
+'Subramanian'
+> name
+'Subramanian'
+> new Date()
+2025-01-20T07:20:42.624Z
+> Math.random()
+0.5686137549251014
+> Math.random()
+0.16463346625778552
+> document
+Uncaught ReferenceError: document is not defined
+> window
+Uncaught ReferenceError: window is not defined
+> process
+process {
+  version: 'v22.13.0',
+  versions: {
+    node: '22.13.0',
+    acorn: '8.14.0',
+    ada: '2.9.2',
+    amaro: '0.2.0',
+}
+...........................................................................................
+				Script mode
+...........................................................................................
+
+hello.js
+ console.log('hello')
+
+How to run?
+
+>node hello.js
+
+eg:
+G:\IBM\2025\Jan\Node\corenodeapp>node src/index.js
+hello node.js
+............................................................................................
+			   Async Programming/Non Blocking patterns
+.............................................................................................
+Fundamental Requirement:
+........................
+
+1.OS should support non blocking apis like select,poll,epoll
+2.Program languages/platforms also should provide high level apis to map os low level apis
+
+Nonblocking Applications Development style:
+............................................
+
+1.callbacks
+2.Promises
+3.Async await
+4.reactive programming 
+
+
+
+
+
+
+
+
