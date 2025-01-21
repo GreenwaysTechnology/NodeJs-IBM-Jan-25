@@ -1,0 +1,77 @@
+const getUser = () => {
+    console.log('getUser is called')
+    return new Promise((resovle, reject) => {
+        let user = {
+            name: 'admin'
+        }
+        // user=null
+        if (user) {
+            setTimeout(resovle, 1000, user)
+        } else {
+            setTimeout(reject, 1000, 'User is not found')
+        }
+    })
+}
+
+const login = user => {
+    console.log('login is called')
+    return new Promise((resovle, reject) => {
+        if (user.name === 'admin') {
+            setTimeout(resovle, 1000, 'login is success')
+        } else {
+            setTimeout(reject, 1000, 'login is failed')
+        }
+    })
+}
+const showDashboard = status => {
+    console.log('showDashboard is called')
+    return new Promise((resovle, reject) => {
+        if (status === 'login is success') {
+            setTimeout(resovle, 1000, 'welcome to dashboard')
+        } else {
+            setTimeout(reject, 1000, 'welcome to guest')
+        }
+    })
+}
+
+function main() {
+    // getUser((user) => {
+    //     login(user, status => {
+    //         showDashboard(status, (page) => {
+    //             console.log(page)
+    //         }, (err) => {
+    //             console.log(err)
+    //         })
+    //     }, err => console.log(err))
+    // }, (err) => {
+    //     console.log(err)
+    // })
+
+    // getUser()
+    //     .then(user => {
+    //         login(user).then(status => {
+    //             showDashboard(status)
+    //                 .then(page => console.log(page))
+    //                 .catch(err => console.log(err))
+    //         }).catch(err => console.log(err))
+    //     }).catch(err => console.log(err))
+
+    // getUser()
+    //     .then(user => {
+    //         return login(user)
+    //     })
+    //     .then(status => {
+    //         return showDashboard(status)
+    //     })
+    //     .then(page => console.log(page))
+    //     .catch(err => console.log(err))
+
+    getUser()
+        .then(user => login(user))
+        .then(status => showDashboard(status) )
+        .then(page => console.log(page))
+        .catch(err => console.log(err))
+
+
+}
+main()
