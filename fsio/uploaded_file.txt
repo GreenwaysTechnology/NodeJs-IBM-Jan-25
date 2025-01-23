@@ -1,0 +1,340 @@
+1. Check if a Number is Even or Odd
+
+Explanation: Use the modulo operator (%). If num % 2 == 0, the number is even; otherwise, it is odd.
+
+public class EvenOdd {
+    public static void main(String[] args) {
+        int num = 5;
+        if (num % 2 == 0) {
+            System.out.println(num + " is even.");
+        } else {
+            System.out.println(num + " is odd.");
+        }
+    }
+}
+
+2. Find the Largest of Three Numbers
+
+Explanation: Use conditional statements to compare the numbers.
+
+public class EvenOdd {
+    public static void main(String[] args) {
+        int num = 5;
+        if (num % 2 == 0) {
+            System.out.println(num + " is even.");
+        } else {
+            System.out.println(num + " is odd.");
+        }
+    }
+}
+
+3. Check if a String is a Palindrome
+
+Explanation: Reverse the string and check equality
+public class Palindrome {
+    public static void main(String[] args) {
+        String str = "madam";
+        String reversed = new StringBuilder(str).reverse().toString();
+        if (str.equals(reversed)) {
+            System.out.println("Palindrome");
+        } else {
+            System.out.println("Not a palindrome");
+        }
+    }
+}
+
+4. Reverse an Integer
+
+Explanation: Extract digits using modulo and divide operators
+
+public class ReverseInteger {
+    public static void main(String[] args) {
+        int num = 1234;
+        int reversed = 0;
+        while (num != 0) {
+            int digit = num % 10;
+            reversed = reversed * 10 + digit;
+            num /= 10;
+        }
+        System.out.println("Reversed: " + reversed);
+    }
+}
+
+
+5. Calculate Factorial of a Number
+
+Explanation: Use a loop or recursion to multiply numbers
+public class Factorial {
+    public static void main(String[] args) {
+        int num = 5;
+        int factorial = 1;
+        for (int i = 1; i <= num; i++) {
+            factorial *= i;
+        }
+        System.out.println("Factorial: " + factorial);
+    }
+}
+
+6. Generate Fibonacci Sequence
+
+Explanation: Use a loop to calculate the next number by summing the previous two.
+
+public class Fibonacci {
+    public static void main(String[] args) {
+        int n = 10, first = 0, second = 1;
+        System.out.print("Fibonacci: " + first + ", " + second);
+        for (int i = 2; i < n; i++) {
+            int next = first + second;
+            System.out.print(", " + next);
+            first = second;
+            second = next;
+        }
+    }
+}
+
+7. Check if a Number is Prime
+
+Explanation: Check divisibility from 2 to sqrt(num)
+public class PrimeCheck {
+    public static void main(String[] args) {
+        int num = 29;
+        boolean isPrime = true;
+        for (int i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        System.out.println(num + (isPrime ? " is prime." : " is not prime."));
+    }
+}
+8. Print All Prime Numbers Between 1 and 100
+
+Explanation: Use a nested loop to check primality.
+
+public class PrimeNumbers {
+    public static void main(String[] args) {
+        for (int num = 2; num <= 100; num++) {
+            boolean isPrime = true;
+            for (int i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i == 0) {
+                    isPrime = false;
+                    break;
+                }
+            }
+            if (isPrime) {
+                System.out.print(num + " ");
+            }
+        }
+    }
+}
+9. Find the GCD of Two Numbers
+
+Explanation: Use the Euclidean algorithm.
+
+public class GCD {
+    public static void main(String[] args) {
+        int a = 54, b = 24;
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        System.out.println("GCD: " + a);
+    }
+}
+
+
+10. Find the LCM of Two Numbers
+
+Explanation: LCM = (a * b) / GCD(a, b).
+
+public class LCM {
+    public static void main(String[] args) {
+        int a = 12, b = 15;
+        int gcd = a;
+        int temp = b;
+        while (temp != 0) {
+            int t = temp;
+            temp = gcd % temp;
+            gcd = t;
+        }
+        int lcm = (a * b) / gcd;
+        System.out.println("LCM: " + lcm);
+    }
+}
+
+
+11. Bubble Sort
+
+Explanation: Repeatedly swap adjacent elements if they are in the wrong order.
+public class BubbleSort {
+    public static void main(String[] args) {
+        int[] arr = {5, 1, 4, 2, 8};
+        for (int i = 0; i < arr.length - 1; i++) {
+            for (int j = 0; j < arr.length - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+    }
+}
+
+12. Insertion Sort
+
+Explanation: Build the sorted array one item at a time.
+
+public class InsertionSort {
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 4, 1, 2};
+        for (int i = 1; i < arr.length; i++) {
+            int key = arr[i];
+            int j = i - 1;
+            while (j >= 0 && arr[j] > key) {
+                arr[j + 1] = arr[j];
+                j--;
+            }
+            arr[j + 1] = key;
+        }
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+    }
+}
+
+13. Find Second Largest Number in an Array
+
+Explanation: Traverse the array to find the largest and second largest.
+
+public class SecondLargest {
+    public static void main(String[] args) {
+        int[] arr = {12, 35, 1, 10, 34, 1};
+        int largest = Integer.MIN_VALUE, secondLargest = Integer.MIN_VALUE;
+        for (int num : arr) {
+            if (num > largest) {
+                secondLargest = largest;
+                largest = num;
+            } else if (num > secondLargest && num != largest) {
+                secondLargest = num;
+            }
+        }
+        System.out.println("Second Largest: " + secondLargest);
+    }
+}
+
+14. Count Occurrences of Each Character in a String
+
+Explanation: Use a HashMap to store characters as keys and their occurrences as values.
+
+import java.util.HashMap;
+
+public class CharOccurrences {
+    public static void main(String[] args) {
+        String str = "hello world";
+        HashMap<Character, Integer> map = new HashMap<>();
+        for (char c : str.toCharArray()) {
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+        System.out.println(map);
+    }
+}
+
+15. Find First Non-Repeating Character
+
+Explanation: Use a HashMap to count occurrences and find the first character with count 1.
+
+import java.util.HashMap;
+
+public class FirstNonRepeatingChar {
+    public static void main(String[] args) {
+        String str = "swiss";
+        HashMap<Character, Integer> map = new HashMap<>();
+        for (char c : str.toCharArray()) {
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+        for (char c : str.toCharArray()) {
+            if (map.get(c) == 1) {
+                System.out.println("First Non-Repeating Character: " + c);
+                return;
+            }
+        }
+        System.out.println("No Non-Repeating Character Found");
+    }
+}
+
+16. Rotate an Array to the Right by k Steps
+
+Explanation: Use an auxiliary array or perform in-place rotation.
+
+public class RotateArray {
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3, 4, 5};
+        int k = 2;
+        k = k % arr.length;
+        reverse(arr, 0, arr.length - 1);
+        reverse(arr, 0, k - 1);
+        reverse(arr, k, arr.length - 1);
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+    }
+
+    private static void reverse(int[] arr, int start, int end) {
+        while (start < end) {
+            int temp = arr[start];
+            arr[start] = arr[end];
+            arr[end] = temp;
+            start++;
+            end--;
+        }
+    }
+}
+
+17. Find Maximum Sum of a Subarray (Kadane’s Algorithm)
+
+Explanation: Use a sliding window approach to calculate the maximum sum.
+
+public class MaxSubarraySum {
+    public static void main(String[] args) {
+        int[] arr = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+        int maxSum = Integer.MIN_VALUE, currentSum = 0;
+        for (int num : arr) {
+            currentSum = Math.max(num, currentSum + num);
+            maxSum = Math.max(maxSum, currentSum);
+        }
+        System.out.println("Maximum Subarray Sum: " + maxSum);
+    }
+}
+
+18. Binary Search in a Sorted Array
+
+Explanation: Use a divide-and-conquer approach.
+public class BinarySearch {
+    public static void main(String[] args) {
+        int[] arr = {1, 3, 5, 7, 9, 11};
+        int target = 5;
+        int result = binarySearch(arr, target);
+        System.out.println("Element found at index: " + result);
+    }
+
+    private static int binarySearch(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (arr[mid] == target) {
+                return mid;
+            } else if (arr[mid] < target) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return -1;
+    }
+}

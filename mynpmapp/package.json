@@ -1,0 +1,23 @@
+{
+  "name": "mynpmapp",
+  "version": "1.0.0",
+  "description": "This is npm project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "build": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mynpmdemo"
+  ],
+  "author": "IBM",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

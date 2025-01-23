@@ -1,19 +1,25 @@
 const fs = require('fs');
-const path = require('path');
 
-const inputfileName = path.join(__dirname, 'assets/big.file');
-//write
-const outputFileName = path.join(__dirname, 'assets/bigcopy.file');
+// File path
+const filePath = './src/assets/info.txt';
 
-const config = {
-      encoding: 'UTF-8'
-}
+// Step 1: Create a read stream
+const readStream = fs.createReadStream(filePath, { encoding: 'utf8' });
+const writeStream = fs.createWriteStream(filePath, { flags: 'a' });
+ // Step 2: Accumulate data into a buffer
+let fileContent = '';
+readStream.on('data', (chunk) => {
+    fileContent += chunk;
+});
+// Handle errors during reading
+readStream.on('error', (err) => {
+    console.error('Error reading the file:', err);
+});
 
-//Back pressure handling
-const readerStream = fs.createReadStream(inputfileName, config);
-const writeStr = fs.createWriteStream(outputFileName, config);
-
-//backPressure streams
-//pipe method is simplest method which wraps resume,pasuse,drain 
-readerStream.pipe(writeStr);
-
+// Step 3: Process the content after reading
+readStream.on('end', () => {
+    // Modify the content
+    const updatedContent =  '\nNew line added!';
+    // Step 4: Write the updated content back to the same file
+    writeStream.write(updatedContent);
+});
