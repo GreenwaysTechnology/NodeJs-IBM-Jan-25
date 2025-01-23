@@ -309,8 +309,7 @@ outputStream.close();
 outputStream.on('close', function () {
     console.log('file has been closed ')
 })
-.....................................................................................
-...................................................................................
+
 .....................................................................................
 				Back Pressure
 ....................................................................................
@@ -334,7 +333,6 @@ How to handle back pressure?
 
 pause : to close the upstream, not to emit data
 resume : to open the open upstream , to emit data
-
 drain event: if drain event is called, means buffer is empty
 
 
