@@ -1,16 +1,11 @@
 const express = require('express');
 require('dotenv').config()
-const morgan = require('morgan')
-const fs = require('node:fs')
-const path = require('node:path')
+const bodyParser = require('body-parser')
+
 const PORT = process.env.PORT || 3000
 const app = express()
-
-
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-//register logger
-// app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
-app.use(morgan('combined', { stream: accessLogStream }))
+//register middlewares
+app.use(bodyParser.json())
 
 app.use('/api/customers', require('./routers/customer.router'))
 app.use('/api/products', require('./routers/products.router'))

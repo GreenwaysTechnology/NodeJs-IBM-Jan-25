@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>CORS Demo</h1>
+    <script>
+        async function getCustomer() {
+            const res = await fetch('http://localhost:3001/api/customers/1')
+            const result = await res.json()
+            console.log(result)
+        }
+        getCustomer()
+        // async function getCustomer() {
+        //     const res = await fetch('http://localhost:3001/api/greet')
+        //     const result = await res.json()
+        //     console.log(result)
+        // }
+        // getCustomer()
+
+        // async function getProducts() {
+        //     const res = await fetch('http://localhost:3001/api/products/1')
+        //     const result = await res.json()
+        //     console.log(result)
+        // }
+        // getProducts()
+    </script>
+</body>
+
+</html>
