@@ -1,10 +1,14 @@
 const express = require('express');
-require('dotenv').config()
+
 const bodyParser = require('body-parser')
 
-const PORT = process.env.PORT || 3000
+const PORT = 3000
 const app = express()
+
+
+
 //register middlewares
+
 app.use(bodyParser.json())
 
 app.use('/api/customers', require('./routers/customer.router'))

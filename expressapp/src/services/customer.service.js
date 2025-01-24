@@ -8,6 +8,9 @@ class CustomerService {
     findAll() {
         return Promise.resolve(CUSTOMERS)
     }
+    findById(id) {
+        return Promise.resolve(id)
+    }
     save(data) {
         console.log(data)
         return Promise.resolve('save')
