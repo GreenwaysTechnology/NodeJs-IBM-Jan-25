@@ -2171,6 +2171,460 @@ const server = app.listen(PORT, () => {
     console.log(`Express is running @ ${server.address().port}`)
 })
 ....................................................................................
+.....................................................................................	
+			Prisma,Mongo,Express
+....................................................................................	
+
+Mongo setup:
+ 1.We cant use local database without cluster configration for Prisma.
+ 2.we have to setup mongodb with cluster either locallly or mongo Atlas cloud platform.
+
+Create Project and setup all libs:
+..................................
+mkdir prismaMongo
+G:\IBM\2024\Oct\NodeJs\prismaMongo>npm init --yes
+
+
+Dependencies:
+1.express
+2.body-parser
+3.nodemon
+4.prisma 
+5.prisma client
+
+
+npm i express
+npm i body-parser
+npm i nodemon --save-dev
+npm install prisma
+npm install @prisma/client
+
+
+have basic setup in code
+
+src/app.js
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const PORT = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+
+
+const server = app.listen(PORT, () => {
+    console.log(server.address())
+    console.log(`Express is running @ ${server.address().port}`)
+})
+................................................................................
+			 setup prisma env
+.................................................................................
+
+prisma provides configuration files
+
+npx prisma init
+
+This command does two things:
+
+1.creates a new directory called prisma that contains a file called schema.prisma,  which contains the Prisma schema with your database connection variable and schema  models
+
+2.creates the .env file in the root directory of the project, which is used for defining environment variables (such as your database connection)
+
+
+G:\IBM\2024\Oct\NodeJs\prismaMongo>npx prisma init
+
+✔ Your Prisma schema was created at prisma/schema.prisma
+  You can now open it in your favorite editor.
+
+Next steps:
+1. Set the DATABASE_URL in the .env file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started
+2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
+3. Run prisma db pull to turn your database schema into a Prisma schema.
+4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
+5. Tip: Explore how you can extend the ORM with scalable connection pooling, global caching, and real-time database events. Read: https://pris.ly/cli/beyond-orm
+
+More information in our documentation:
+https://pris.ly/d/getting-started
+
+In order to connect with mongodb we need to configure provider as mongodb
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+.env
+DATABASE_URL="mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+coding:
+
+Define Model:
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Define model (schema)
+model Post {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  content String
+}
+
+src/app.js
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const PORT = process.env.PORT || 3000
+const { PrismaClient } = require('@prisma/client')
+
+
+app.use(bodyParser.json())
+
+const prisma = new PrismaClient()
+
+//for simplicity ; i am not creating routers,service layer; you can /should do when 
+//write your app.
+
+app.get('/api/posts', async(req, res) => {
+    //read from mongo
+    try {
+        const posts = await prisma.post.findMany()
+        res.json(posts)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+app.post('/api/posts', async (req, res) => {
+    const input = req.body
+    try {
+        const post = await prisma.post.create({
+            data: {
+                title: input.title,
+                content: input.content
+            }
+        })
+        res.json(post)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+
+
+const server = app.listen(PORT, () => {
+    console.log(server.address())
+    console.log(`Express is running @ ${server.address().port}`)
+})
+....................................................................................
+			 Express,Prisma,SQL
+.....................................................................................
+Set up Prisma framework:
+........................
+
+Relational databases
+
+Prerequisites
+1.an existing Node.js project with a package.json
+
+2.Node.js installed on your machine
+
+3.A database server running and a database with at least one table
+  (we are going sqlite db)
+
+
+create project with all dependency:
+
+ Note: we are going to use in-memory database called sqlite.
+
+Steps:
+G:\IBM\2024\Oct\NodeJs\prismaSQL>npm init --yes
+
+npm i express body-parser
+npm i nodemon --save-dev
+npm install prisma --save-dev
+
+npx prisma
+
+Prisma is a modern DB toolkit to query, migrate and model your database (https://prisma.io)
+
+Usage
+
+  $ prisma [command]
+
+Commands
+
+            init   Set up Prisma for your app
+        generate   Generate artifacts (e.g. Prisma Client)
+              db   Manage your database schema and lifecycle
+         migrate   Migrate your database
+          studio   Browse your data with Prisma Studio
+        validate   Validate your Prisma schema
+          format   Format your Prisma schema
+         version   Displays Prisma version info
+           debug   Displays Prisma debug info
+
+Flags
+
+npx prisma init
+
+creates a new directory called prisma that contains a file called schema.prisma, which contains the Prisma schema with your database connection variable and schema models
+creates the .env file in the root directory of the project, which is used for defining environment variables (such as your database connection)
+
+
+npx prisma init --datasource-provider sqlite
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+.env
+PORT=3000
+
+# This was inserted by `prisma init`:
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL="file:./dev.db"
+....................................................................................
+				connect db
+....................................................................................
+
+Already we have connection string defined in ".env" file and provider in prisma.schema
+.....................................................................................
+				Prisma client
+
+Prima client is object which is responsible for talking to database ,
+
+which provides apis for all database operations - CURD operations
+
+npm install @prisma/client
+
+.....................................................................................
+				Define model(Entity)
+....................................................................................
+
+Model represents table in database.
+
+1.Represent the entities of your application domain
+2.Map to the tables (relational databases like PostgreSQL) or collections (MongoDB)   in your database
+3.Form the foundation of the queries available in the generated Prisma Client API
+4.When used with TypeScript, Prisma Client provides generated type definitions for  your models and any variations of them to make database access entirely type safe.
+
+
+
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+//define model - describe table structure;database independant
+//User is mapped against table
+model User {
+  // fields- columns
+  id    Int     @id @default(autoincrement())
+  name  String?
+  email String  @unique
+}
+
+
+Database Migration step:
+
+Which creates scripts
+
+npx prisma migrate dev
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "dev.db" at "file:./dev.db"
+
+SQLite database dev.db created at file:./dev.db
+
+√ Enter a name for the new migration: ... mymigration
+Applying migration `20240209080353_mymigration`
+
+The following migration(s) have been created and applied from new schema changes:
+
+migrations/
+  └─ 20240209080353_mymigration/
+    └─ migration.sql
+
+Your database is now in sync with your schema.
+
+✔ Generated Prisma Client (v5.9.1) to .\node_modules\@prisma\client in 64ms
+
+
+Testing :
+ Whether all tables are created inside db or not
+
+>npx prisma studio
+
+.................................................................................
+			Prisma Client and CURD operations
+...................................................................................
+
+Create Prisma client Object
+
+src/routers/user.router.js
+const userRouter = require('express').Router();
+const { PrismaClient } = require('@prisma/client')
+
+
+//create prisma object 
+const prisma = new PrismaClient()
+//expose api
+userRouter.get('/', async (req, res) => {
+    try {
+        const users = await prisma.user.findMany()
+        res.status(200).json(users)
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+
+})
+userRouter.post('/', async (req, res) => {
+    try {
+        const newUser = req.body
+        if (newUser) {
+            const user = await prisma.user.create({
+                data: {
+                    email: newUser.email,
+                    name: newUser.name
+                }
+            })
+            res.status(201).location("/api/users/save").json(user)
+        }
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+})
+userRouter.get('/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                //id: id
+                id
+            },
+        })
+        if (user == null) {
+            res.status(401).json({ message: `User not found for ID ${id}` })
+        }
+        res.status(200).json(user)
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+})
+userRouter.put('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+        const user = req.body
+        //update 
+        const updateUser = await prisma.user.update({
+            where: {
+                id: id
+            },
+            data: {
+                name: user.name,
+                email: user.email
+            }
+        })
+        if (updateUser) {
+            res.status(200).json(updateUser)
+        } else {
+            res.status(401).json({ message: `Update failed for ${id}` })
+        }
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+})
+
+userRouter.delete('/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                //id: id
+                id
+            },
+        })
+        if (user == null) {
+            res.status(401).json({ message: `User not found for ID ${id}` })
+        } else {
+            await prisma.user.delete({
+                where: {
+                    id
+                },
+            })
+            res.status(204).end()
+        }
+
+
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+})
+
+module.exports = userRouter
+
+src/app.js
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const PORT = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+
+app.use('/api/users', require('./routers/user.router'))
+
+const server = app.listen(PORT, () => {
+    console.log(server.address())
+    console.log(`Express is running @ ${server.address().port}`)
+})
+
+....................................................................................
+
+
+
+
+
+
+
+
+
+
 
 
 
