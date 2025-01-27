@@ -1530,3 +1530,659 @@ const server = app.listen(PORT, () => {
     console.log(server.address())
     console.log(`Express server is running @ ${server.address().port}`)
 });
+..............................................................................................
+.....................................................................................
+				Mongodb - Mongoose
+.....................................................................................
+
+Here we are going to write code mongodb curd with mongoose framework.
+
+Steps:
+
+1.Make sure mongodb is installed or try to use mongodb cloud
+
+2.create project 
+G:\IBM\2024\Oct\NodeJs>mkdir expressMonogoose
+G:\IBM\2024\Oct\NodeJs>cd expressMonogoose
+G:\IBM\2024\Oct\NodeJs\expressMonogoose>
+
+3.G:\IBM\2024\Oct\NodeJs\expressMonogoose>npm init --yes
+Wrote to G:\IBM\2024\Oct\NodeJs\expressMonogoose\packa
+
+4.install dependencies
+npm i express
+npm install mongoose --save
+npm i nodemon --save-dev
+npm i body-parser
+npm i dotenv
+
+Coding:
+
+1.define schema
+   plan for your collection
+const mongoose = require('mongoose')
+
+const schema = mongoose.schema({
+    title:String,
+    content:String
+})
+Datatypes:
+1.String
+2.Number
+3.Date
+4.Buffer
+5.Boolean
+6.Mixed
+7.ObjectId
+8.Array
+9.Decimal128
+10.Map
+11.UUID
+
+2.create model out of schema
+const mongoose = require('mongoose')
+
+const schema = mongoose.schema({
+    title:String,
+    content:String
+})
+
+module.exports=mongoose.model("Post",schema)
+
+3.Connect mongodb.
+
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+
+const PORT = process.env.PORT || 3000
+
+
+//connect to mongodb
+async function connectDb() {
+    try {
+        await mongoose.connect(process.env.DATABASE_URL)
+        console.log("Mongo is connected")
+
+        const server = app.listen(PORT, () => {
+            console.log(server.address())
+            console.log(`Express is running @ ${server.address().port}`)
+        })
+
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+connectDb()
+
+app.get('/', (req, res) => {
+    res.end('Home Page')
+})
+
+Here , we have started webserver only after mongodb is connected.
+
+
+Full code:
+
+src/services/posts.service.js
+const Post = require('../models/Post.model')
+
+class PostService {
+
+    //curd operations
+
+    async findAll() {
+        return await Post.find()
+    }
+    async findById(id) {
+        const post = await Post.findOne({ _id: id })
+        return post
+    }
+    // async save(post) {
+    //     const newPost = new Post({
+    //         title: post.title,
+    //         content: post.content
+    //     })
+    //     await newPost.save()
+    //     return newPost
+    // }
+    async save({ title, content }) {
+        // const newPost = new Post({
+        //     title: title,
+        //     content: content
+        // })
+        const newPost = new Post({
+            title,
+            content
+        })
+        await newPost.save()
+        return newPost
+    }
+    async update(id, { title, content }) {
+        const post = await Post.findOne({ _id: id })
+        if (!post) {
+            throw Error()
+        }
+        if (title) {
+            post.title = title
+        }
+        if (content) {
+            post.content = content
+        }
+        await post.save()
+        return post
+    }
+    async remove(id) {
+        const post = await Post.findOne({ _id: id })
+        if (post) {
+            await Post.deleteOne({ _id: id })
+        } else {
+            throw Error()
+        }
+    }
+}
+module.exports = new PostService();
+
+src/routers/posts.router.js
+const express = require('express')
+const { findAll, findById, save, update, remove } = require('../services/post.service')
+
+const PostRouter = express.Router()
+
+PostRouter.get('/', async (req, res) => {
+    try {
+        const posts = await findAll()
+        res.json(posts)
+    }
+    catch (err) {
+        res.status(400).json({ err })
+    }
+
+})
+PostRouter.post('/', async (req, res) => {
+    const post = req.body
+    try {
+        const savedPost = await save(post)
+        res.status(201).json(savedPost)
+    }
+    catch (err) {
+        res.status(400).json({ err })
+    }
+
+})
+PostRouter.get('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        const post = await findById(id)
+        res.json(post)
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+PostRouter.patch('/:id', async (req, res) => {
+    const id = req.params.id
+    const postInput = req.body
+    try {
+        const post = await update(id, postInput)
+        res.json(post)
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+
+PostRouter.delete('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        await remove(id)
+        res.status(204).send()
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+
+
+module.exports = PostRouter
+app.js
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+
+const PORT = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+
+
+//connect to mongodb
+async function connectDb() {
+    try {
+        await mongoose.connect(process.env.DATABASE_URL)
+        console.log("Mongo is connected")
+
+        const server = app.listen(PORT, () => {
+            console.log(server.address())
+            console.log(`Express is running @ ${server.address().port}`)
+        })
+
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+connectDb()
+
+app.use("/api/posts", require("./routers/post.router"))
+
+app.get('/', (req, res) => {
+    res.end('Home Page')
+})
+.....................................................................................
+Coding:
+
+1.define schema
+   plan for your collection
+const mongoose = require('mongoose')
+
+const schema = mongoose.schema({
+    title:String,
+    content:String
+})
+Datatypes:
+1.String
+2.Number
+3.Date
+4.Buffer
+5.Boolean
+6.Mixed
+7.ObjectId
+8.Array
+9.Decimal128
+10.Map
+11.UUID
+
+2.create model out of schema
+const mongoose = require('mongoose')
+
+const schema = mongoose.schema({
+    title:String,
+    content:String
+})
+
+module.exports=mongoose.model("Post",schema)
+
+3.Connect mongodb.
+
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+
+const PORT = process.env.PORT || 3000
+
+
+//connect to mongodb
+async function connectDb() {
+    try {
+        await mongoose.connect(process.env.DATABASE_URL)
+        console.log("Mongo is connected")
+
+        const server = app.listen(PORT, () => {
+            console.log(server.address())
+            console.log(`Express is running @ ${server.address().port}`)
+        })
+
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+connectDb()
+
+app.get('/', (req, res) => {
+    res.end('Home Page')
+})
+
+Here , we have started webserver only after mongodb is connected.
+
+
+Full code:
+
+src/services/posts.service.js
+const Post = require('../models/Post.model')
+
+class PostService {
+
+    //curd operations
+
+    async findAll() {
+        return await Post.find()
+    }
+    async findById(id) {
+        const post = await Post.findOne({ _id: id })
+        return post
+    }
+    // async save(post) {
+    //     const newPost = new Post({
+    //         title: post.title,
+    //         content: post.content
+    //     })
+    //     await newPost.save()
+    //     return newPost
+    // }
+    async save({ title, content }) {
+        // const newPost = new Post({
+        //     title: title,
+        //     content: content
+        // })
+        const newPost = new Post({
+            title,
+            content
+        })
+        await newPost.save()
+        return newPost
+    }
+    async update(id, { title, content }) {
+        const post = await Post.findOne({ _id: id })
+        if (!post) {
+            throw Error()
+        }
+        if (title) {
+            post.title = title
+        }
+        if (content) {
+            post.content = content
+        }
+        await post.save()
+        return post
+    }
+    async remove(id) {
+        const post = await Post.findOne({ _id: id })
+        if (post) {
+            await Post.deleteOne({ _id: id })
+        } else {
+            throw Error()
+        }
+    }
+}
+module.exports = new PostService();
+
+src/routers/posts.router.js
+const express = require('express')
+const { findAll, findById, save, update, remove } = require('../services/post.service')
+
+const PostRouter = express.Router()
+
+PostRouter.get('/', async (req, res) => {
+    try {
+        const posts = await findAll()
+        res.json(posts)
+    }
+    catch (err) {
+        res.status(400).json({ err })
+    }
+
+})
+PostRouter.post('/', async (req, res) => {
+    const post = req.body
+    try {
+        const savedPost = await save(post)
+        res.status(201).json(savedPost)
+    }
+    catch (err) {
+        res.status(400).json({ err })
+    }
+
+})
+PostRouter.get('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        const post = await findById(id)
+        res.json(post)
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+PostRouter.patch('/:id', async (req, res) => {
+    const id = req.params.id
+    const postInput = req.body
+    try {
+        const post = await update(id, postInput)
+        res.json(post)
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+
+PostRouter.delete('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        await remove(id)
+        res.status(204).send()
+    }
+    catch (err) {
+        res.status(404).json({ err: "Post does exits" })
+    }
+
+})
+
+
+module.exports = PostRouter
+app.js
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+
+const PORT = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+
+
+//connect to mongodb
+async function connectDb() {
+    try {
+        await mongoose.connect(process.env.DATABASE_URL)
+        console.log("Mongo is connected")
+
+        const server = app.listen(PORT, () => {
+            console.log(server.address())
+            console.log(`Express is running @ ${server.address().port}`)
+        })
+
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+connectDb()
+
+app.use("/api/posts", require("./routers/post.router"))
+
+app.get('/', (req, res) => {
+    res.end('Home Page')
+})
+.....................................................................................	
+			Prisma,Mongo,Express
+....................................................................................	
+
+Mongo setup:
+ 1.We cant use local database without cluster configration for Prisma.
+ 2.we have to setup mongodb with cluster either locallly or mongo Atlas cloud platform.
+
+Create Project and setup all libs:
+..................................
+mkdir prismaMongo
+G:\IBM\2024\Oct\NodeJs\prismaMongo>npm init --yes
+
+
+Dependencies:
+1.express
+2.body-parser
+3.nodemon
+4.prisma 
+5.prisma client
+
+
+npm i express
+npm i body-parser
+npm i nodemon --save-dev
+npm install prisma
+npm install @prisma/client
+
+
+have basic setup in code
+
+src/app.js
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const PORT = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+
+
+const server = app.listen(PORT, () => {
+    console.log(server.address())
+    console.log(`Express is running @ ${server.address().port}`)
+})
+................................................................................
+			 setup prisma env
+.................................................................................
+
+prisma provides configuration files
+
+npx prisma init
+
+This command does two things:
+
+1.creates a new directory called prisma that contains a file called schema.prisma,  which contains the Prisma schema with your database connection variable and schema  models
+
+2.creates the .env file in the root directory of the project, which is used for defining environment variables (such as your database connection)
+
+
+G:\IBM\2024\Oct\NodeJs\prismaMongo>npx prisma init
+
+✔ Your Prisma schema was created at prisma/schema.prisma
+  You can now open it in your favorite editor.
+
+Next steps:
+1. Set the DATABASE_URL in the .env file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started
+2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
+3. Run prisma db pull to turn your database schema into a Prisma schema.
+4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
+5. Tip: Explore how you can extend the ORM with scalable connection pooling, global caching, and real-time database events. Read: https://pris.ly/cli/beyond-orm
+
+More information in our documentation:
+https://pris.ly/d/getting-started
+
+In order to connect with mongodb we need to configure provider as mongodb
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+.env
+DATABASE_URL="mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+coding:
+
+Define Model:
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Define model (schema)
+model Post {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  content String
+}
+
+src/app.js
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const PORT = process.env.PORT || 3000
+const { PrismaClient } = require('@prisma/client')
+
+
+app.use(bodyParser.json())
+
+const prisma = new PrismaClient()
+
+//for simplicity ; i am not creating routers,service layer; you can /should do when 
+//write your app.
+
+app.get('/api/posts', async(req, res) => {
+    //read from mongo
+    try {
+        const posts = await prisma.post.findMany()
+        res.json(posts)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+app.post('/api/posts', async (req, res) => {
+    const input = req.body
+    try {
+        const post = await prisma.post.create({
+            data: {
+                title: input.title,
+                content: input.content
+            }
+        })
+        res.json(post)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+
+
+const server = app.listen(PORT, () => {
+    console.log(server.address())
+    console.log(`Express is running @ ${server.address().port}`)
+})
+....................................................................................
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
