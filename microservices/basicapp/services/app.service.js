@@ -1,33 +1,42 @@
 const { ServiceBroker } = require('moleculer')
 
-const broker = new ServiceBroker()
+const broker = new ServiceBroker({
+    serializer: "JSON" // not necessary to set, because it is the default
+})
 
 broker.createService({
-    name: 'math',
+    name: "products",
     actions: {
-        sum: {
-                  params: {
-                //validation logic for incoming parameters(a,b)
-                a: {
-                    type: 'number', positive: true, integer: true
-                },
-                b: {
-                    type: 'number', positive: true, integer: true
-                },
-            },
-            handler(ctx) {
-                const { a, b } = ctx.params
-                return a + b
-            }
+        //here we write biz logic
+        async findAll(ctx) {
+            return await ctx.call('inventory.findAll')
+        }
+    }
+})
+broker.createService({
+    name: "inventory",
+    actions: {
+        findAll() {
+            const products = [{
+                id: 1,
+                name: 'Iphone',
+                qty: 100,
+                price: 1000
+            }]
+            return new this.Promise((resolve, reject) => {
+                setTimeout(resolve, 1000, products)
+            })
         }
     }
 })
 
+
 async function main() {
     try {
+        //start service broker: start webserver
         await broker.start()
-        console.log('Broker Started')
         broker.repl()
+
     }
     catch (err) {
         console.log(err)
