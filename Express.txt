@@ -1580,6 +1580,7 @@ Datatypes:
 11.UUID
 
 2.create model out of schema
+
 const mongoose = require('mongoose')
 
 const schema = mongoose.schema({
@@ -2413,7 +2414,7 @@ Already we have connection string defined in ".env" file and provider in prisma.
 .....................................................................................
 				Prisma client
 
-Prima client is object which is responsible for talking to database ,
+Prima client is object which is responsible for talking to database 
 
 which provides apis for all database operations - CURD operations
 
