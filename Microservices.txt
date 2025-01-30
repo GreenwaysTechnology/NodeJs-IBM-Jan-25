@@ -2424,6 +2424,293 @@ async function main() {
     await broker.start();
 }
 main();
+broker.createService({
+    name: 'APIGateWay',
+    mixins: [ApiGateWayService],
+    settings: {
+        routes: [{
+            path: '/api',
+            aliases: {
+                "GET products": "products.list",  //GET list is default method
+                "GET products/:id": "products.get", //products/1 products/2 
+                "POST products": "products.create",
+                "PUT products/:id": "products.update",
+                "DELETE products/:id": "products.remove"
+            }
+        }]
+    }
+})
+
+async function init() {
+    try {
+        await broker.start();
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+............
+....................................................................................
+			What if Resources are growing
+
+
+Products
+   aliases: {
+                "GET products": "products.list",  //GET list is default method
+                "GET products/:id": "products.get", //products/1 products/2 
+                "POST products": "products.create",
+                "PUT products/:id": "products.update",
+                "DELETE products/:id": "products.remove"
+            }
+
+Customers
+    aliases: {
+                "GET customers": "customers.list",  //GET list is default method
+                "GET customers/:id": "customers.get", //products/1 products/2 
+                "POST customers": "customers.create",
+                "PUT customers/:id": "customers.update",
+                "DELETE customers/:id": "customers.remove"
+            }
+
+Can we simplify the above code?
+ 
+Yes!
+ Automation, automatic code generation.
+
+Way 1;
+ REST path: service
+
+it will map actions automatically but there is rule , method names should be like below
+ aliases: { 
+   "REST users" : "users"
+ }
+ list
+ get
+ save
+ update
+ remove
+
+const { ServiceBroker } = require("moleculer");
+const ApiGateWayService = require("moleculer-web");
+
+const broker = new ServiceBroker({
+    serializer: "JSON"
+})
+
+const PRODUCTS = [{
+    id: 1,
+    name: 'A',
+    price: 100,
+    qty: 34
+
+},
+{
+    id: 2,
+    name: 'A1',
+    price: 1002,
+    qty: 342
+
+}]
+broker.createService({
+    name: 'products',
+    actions: {
+        //GET ALL products
+        list: {
+            handler(ctx) {
+                return PRODUCTS;
+            }
+        },
+        //GET product by id
+        get: {
+            handler(ctx) {
+                console.log(ctx.params)
+                return PRODUCTS.filter(product => product.id == ctx.params.id)
+            }
+        },
+        //save
+        create(ctx) {
+            console.log(ctx.params)
+            return 'Product Created'
+        },
+        //update
+        update(ctx) {
+            return 'Product updated'
+        },
+        //delete
+        remove(ctx) {
+            return 'Product removed'
+        }
+    }
+})
+broker.createService({
+    name: 'APIGateWay',
+    mixins: [ApiGateWayService],
+    settings: {
+        routes: [{
+            path: '/api',
+            aliases: {
+                "REST products": "products"
+            }
+        }]
+    }
+})
+
+async function init() {
+    try {
+        await broker.start();
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+
+method names:
+ list
+ get
+ create
+ update
+ remove
+
+Way 2;
+ without even REST configuration
+		  	Convert any back end service into rest api
+....................................................................................
+			Auto aliases: without mapping rest api 
+.....................................................................................
+
+Actions can be converted into rest api.
+
+      list:{
+	  // /api/users/
+	   rest : "GET /"       
+	   handler(ctx){
+
+	   }
+        }
+
+      get:{
+	  // /api/users/
+	   rest : "GET /:id"       
+	   handler(ctx){
+
+	   }
+        }
+
+     save:{
+	  // /api/users/
+	   rest : "POST /"       
+	   handler(ctx){
+
+	   }
+        }
+
+const { ServiceBroker } = require("moleculer");
+const ApiGateWayService = require("moleculer-web");
+
+const broker = new ServiceBroker()
+
+const PRODUCTS = [{
+    id: 1,
+    name: 'A',
+    price: 100,
+    qty: 34
+
+},
+{
+    id: 2,
+    name: 'A1',
+    price: 1002,
+    qty: 342
+
+}]
+
+broker.createService({
+    name: 'products',
+    actions: {
+        //GET ALL products
+        list: {
+            rest: "GET /",
+            handler(ctx) {
+                return PRODUCTS;
+            }
+        },
+        //GET product by id
+        get: {
+            rest: "GET /:id",
+            handler(ctx) {
+                console.log(ctx.params)
+                return PRODUCTS.filter(product => product.id == ctx.params.id)
+            }
+        },
+        //save
+        create: {
+            rest: "POST /",
+            handler(ctx) {
+                console.log(ctx.params)
+                return 'Product Created'
+            }
+        },
+        //update
+        update: {
+            rest: "PUT /:id",
+            handler(ctx) {
+                console.log(ctx.params)
+                return 'Product update'
+            }
+        },
+        //delete
+        remove: {
+            rest: "DELETE /:id",
+            handler(ctx) {
+                console.log(ctx.params)
+                return 'Product update'
+            }
+        }
+    }
+})
+
+broker.createService({
+    name: 'APIGateWay',
+    mixins: [ApiGateWayService],
+    settings: {
+        routes: [{
+            path: '/api',
+            aliases: {
+               //custom end point configuration
+            },
+            autoAliases: true
+        }]
+    }
+})
+async function init() {
+    try {
+        await broker.start();
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+
+Task:
+
+create a remote app:
+
+1.one app is gateway
+2.product service - rest api
+3.customer service - back end api but configured in alises
+
+All app must be connected via tcp transporter
+
+
+
+
+
+
+
+
 
 
 
