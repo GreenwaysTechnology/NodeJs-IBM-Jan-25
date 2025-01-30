@@ -2,10 +2,8 @@ const { ServiceBroker } = require("moleculer");
 const ApiGateWayService = require("moleculer-web");
 
 const broker = new ServiceBroker({
-    logger: "Console",
-    // cacher: "Memory"
-    cacher: "redis://localhost:6379"
-
+    logger:"Console",
+    
 })
 
 const PRODUCTS = [{
@@ -28,10 +26,8 @@ broker.createService({
         //GET ALL products
         list: {
             rest: "GET /",
-            // Enable caching to this action
-            cache: true,
             handler(ctx) {
-                this.logger.info('called')
+                this.logger.info('test')
                 return PRODUCTS;
             }
         },
@@ -76,7 +72,7 @@ broker.createService({
         routes: [{
             path: '/api',
             aliases: {
-                //custom end point configuration
+               //custom end point configuration
             },
             autoAliases: true
         }]
