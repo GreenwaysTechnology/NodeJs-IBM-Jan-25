@@ -2134,8 +2134,8 @@ async function main() {
 main()
 .............................................................................................
 .....................................................................................
-			 REST API
-		       (API GateWay)
+			   REST API
+		          (API GateWay)
 .....................................................................................
 moleculer-web
    Official API Gateway for Moleculer framework NPM version
@@ -2704,21 +2704,418 @@ create a remote app:
 
 All app must be connected via tcp transporter
 
+....................................................................................
+			    Logging
+...................................................................................
+
+Built in Logger: Console
+
+const { ServiceBroker } = require('moleculer')
+
+//create broker object
+const broker = new ServiceBroker({
+    logger: "File"
+})
+//create service
+broker.createService({
+    name: 'hello',
+    //biz logic 
+    actions: {
+        //methods
+        sayHello() {
+            //log
+            //console.log("say Hello is called")
+            this.logger.info("Say Hello is called")
+            return "Hello"
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        console.log('Broker is ready')
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+....................................................................................
+			    Caching
+...................................................................................
+
+if api is called for data which calls internally database or external end points.
+
+if api returns the same data again and again, why should i execute queries or calling third party api
+
+Caching provides high level performance.
+
+Without Caching:
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    logger: "Console"
+})
+
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            handler(ctx) {
+                this.logger.info('handler is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+output
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:47.170Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:3ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:56.589Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:1ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:59.203Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:5ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:15:00.348Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:5ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+
+now you can notice, this method is called more number of times 
+
+Types of caching:
+..................
+
+1.InMemory Caching
+   once the app is restarted , then all cache data will be lost but stores all cached
+data in "RAM".
+
+const broker = new ServiceBroker({
+    cacher: "Memory"
+});
+const broker = new ServiceBroker({
+    cacher: true
+});
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "Memory" //type of cache configuration
+})
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            //meta configurations
+            cache: true,
+            handler(ctx) {
+                this.logger.info('user service is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+Redis Cache:
+
+1.you have to start redis server.
+
+docker run --name some-redis -p 6379:6379  redis
+
+2.install redis driver.
+ npm install ioredis
+
+3.redis configuration
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "redis://localhost:6379"
+})
+
+Code:
+const { ServiceBroker } = require('moleculer')
+
+// const broker = new ServiceBroker({
+//     logger: "Console",
+//     cacher: "Memory"
+// })
+
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "redis://localhost:6379"
+})
+
+
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            //list method now is cached
+            cache: true,
+            handler(ctx) {
+                this.logger.info('handler is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+Testing:
+
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:34:25.583Z] INFO  desktop-kaufcr7-12256/USER: handler is called
+>> Execution time:7ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:4ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $
+
+Verify against Redis Server
+
+redis-cli
+127.0.0.1:6379> keys *
+1) "MOL-user.list:"
+127.0.0.1:6379> GET MOL-user.list: 
+"[{\"id\":1,\"name\":\"Subramanian\"},{\"id\":2,\"name\":\"Murugan\"}]"
+127.0.0.1:6379> 
+
+
+		           Service Registry and Discovery
+.....................................................................................
+
+1.Service Registry
+
+ It is mini /small database , key-value pair database, in memory database.
+ Which has all service,actions,event listeners, nodes information.
+
+Points:
+1.Every Broker has in built Service Registry
+     Moleculer has built in in-memory registry, we can use that registry directly.
+
+2.All services local or remote are registered with service registry as soon you create   service
+
+3.Molecular has built in registry called LocalDiscoveryRegistry, which is not using third party registry servers
+  like apache zoo keeper,consule,etcd,eurka....
+
+4.if you want to make other servers as service registry -
+
+   registry: {
+        discoverer: "redis://redis-server:6379"
+    }  
+const broker = new ServiceBroker({
+registry: {
+        discoverer: "redis://redis-server:6379"
+    } 
+});
+
+What is discovery?
+   
+   Discovery  means the lookup, search, we are going to search "services" from the registry infra structure.
+
+         "All Services when is created is registered in Service Registry"
+
+Moleculer looks up services from the registry by name.
+You can change registery server from LocalDiscover to Redis,etcd3,
+
+1.Start Redis Server.
+
+docker run  -p 6379:6379 redis
+
+2.install redis driver
+npm install ioredis --save
+
+const broker = new ServiceBroker({
+    transporter: "nats://localhost:4222",
+    registry: {
+        //discoverer:'Redis'
+        discoverer: "redis://localhost:6379"
+    }
+});
+
+[2021-07-31T08:44:43.219Z] INFO  laptop-r2tggfdl-24816/REGISTRY: Discoverer: RedisDiscoverer
+
+.....................................................................................
+				..............................................................................................
+			High Availability and scalibity
+..............................................................................................
+			   	
+ 				  Load Balancing
+
+In Server-side load balancing, the instances of the service are deployed on multiple servers and then a load balancer is put in front of them. It is generally a hardware load balancer. All the incoming requests traffic firstly comes to this load balancer acting as a middle component. It then decides to which server a particular request must be directed to based on some algorithm.
+
+Disadvantages of Server-side load balancing:
+
+Server side load balancer acts as a single point of failure as if it fails, all the instances of the microservice becomes inaccessible as only load balancer has the list of servers.
+
+Since each microservice will have a separate load balancer, the overall complexity of the system increases and it becomes hard to manage.
+
+The network latency increases as the number of hops for the request increases from one to two with the load balancer, one to the load balancer and then another from load balancer to the microservice.
+
+
+2. Client-side Load Balancing
+
+The instances of the service are deployed on multiple servers. Load balancer's logic is part of the client itself, it holds the list of servers and decides to which server a particular request must be directed to based on some algorithm. These client side load balancers are also known as software load balancers.
+
+Disadvantages of Client-side load balancing
+The load balancer's logic is mixed up with the microservice code.
+
+
+............................
+
+Server side Load balancer is very usefull to manage trafic from outside applications.
+Mobile clients and webclients trafic easily can be managed.
+
+Client side load balancers are very usefull to mangae trafic inside microservice application.
+
+
+Why we need load balancer?
+
+1. To scale services instances
+ A single service may not sufficient to handle multiple concurrent request.
+
+How to select which service instance to be assigned to caller(client), 
+
+   With help of Load Balancer.
+
+Load Balancer balances incomming load and route according to "router algorthims" provided by load balancers.
+
+
+Built-in strategies
+
+ ->RoundRobin strategy
+	This strategy selects a node based on round-robin algorithm.
+   Refer:https://en.wikipedia.org/wiki/Round-robin_DNS
+ ->Random strategy
+	This strategy selects a node randomly.
+ ->CPU usage-based strategy
+	This strategy selects a node which has the lowest CPU usage. Due to the node list can 	be very long, it gets samples and selects the node with the lowest CPU usage from only 	samples instead of the whole node list.
+
+ ->Latency-based strategy
+	This strategy selects a node which has the lowest latency, measured by periodic ping commands. Notice that the strategy only ping one of nodes from a single host.
+
+In Moleculer load balancers are built in, part of Registry , which is part of broker.
+
+Moleculer loader balancer by default uses RoundRobin algorthim, if you want to change different one, you can override
+
+ registry: {
+        strategy: "Latency",
+        strategyOptions: {
+            sampleCount: 15,
+            lowLatency: 20,
+            collectCount: 10,
+            pingInterval: 15
+        }
+    }
+
+In Moleculer load balancers are built in, part of Registry , which is part of broker.
+
+Moleculer loader balancer by default uses RoundRobin algorthim, if you want to change different one, you can override
+
+ registry: {
+        strategy: "Latency",
+        strategyOptions: {
+            sampleCount: 15,
+            lowLatency: 20,
+            collectCount: 10,
+            pingInterval: 15
+        }
+    }
+
+How to implement load balancing?
+
+1.You need to clone the services n- number of times.
+  lets say i have service called "adder" service , i need to run adder service 2 instances
+
+2.Each service is going to run in different nodes. Each node must be identified quickly.
+  Node name should not be hardcoded.
+  In Genernal Node Id would be  - computername_processId
+
+How to test ?
+
+Open 3 cmd 
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
+
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
 
 
 
+How to implement load balancing?
 
+1.You need to clone the services n- number of times.
+  lets say i have service called "adder" service , i need to run adder service 2 instances
 
-
-
-
-
-
-
-
-
-
-
+2.Each service is going to run in different nodes. Each node must be identified quickly.
+  Node name should not be hardcoded.
+  In Genernal Node Id would be  - computername_processId
 
 
 
